@@ -1,7 +1,29 @@
-# Gitignore for Perl 6 (http://www.perl6.org)
-# As part of https://github.com/github/gitignore
+# ---> Go
+# Compiled Object files, Static and Dynamic libs (Shared Objects)
+*.o
+*.a
+*.so
+.DS_Store
+node_modules/
+dist/
+unpackage
+# Folders
+_obj
+_test
 
-# precompiled files
-.precomp
-lib/.precomp
+# Architecture specific extensions/prefixes
+*.[568vq]
+[568vq].out
+
+*.cgo1.go
+*.cgo2.c
+_cgo_defun.c
+_cgo_gotypes.go
+_cgo_export.*
+
+_testmain.go
+
+*.exe
+*.test
+*.prof
 
