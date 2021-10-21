@@ -20,14 +20,16 @@
                 <div class="number">{{Math.floor(balance*0.8*100)/100}} USDT</div>
                 <div class="over_time_tip">倒计时</div>
                 <div class="over_time">
-                    <div class="time_block">08</div>
+                    <div class="time_block">{{timers1[0]}}</div>
                     <div class="time_split">:</div>
-                    <div class="time_block">59</div>
+                    <div class="time_block">{{timers1[1]}}</div>
                     <div class="time_split">:</div>
-                    <div class="time_block">00</div>
+                    <div class="time_block">{{timers1[2]}}</div>
                 </div>
             </div>
             <div class="solid"></div>
+        </div>
+        <div class="bg4">
             <div class="superinfo">
                 <div class="title">
                     当前时时乐透池
@@ -38,11 +40,11 @@
                 <div class="number violet">{{Math.floor(balance*0.02*100)/100}} USDT</div>
                 <div class="over_time_tip">倒计时</div>
                 <div class="over_time">
-                    <div class="time_block violet">08</div>
+                    <div class="time_block violet">{{timers[0]}}</div>
                     <div class="time_split">:</div>
-                    <div class="time_block violet">59</div>
+                    <div class="time_block violet">{{timers[1]}}</div>
                     <div class="time_split">:</div>
-                    <div class="time_block violet">00</div>
+                    <div class="time_block violet">{{timers[2]}}</div>
                 </div>
             </div>
 
@@ -100,13 +102,14 @@ import {mapState} from 'vuex'
     export default {
         data() {
             return {
+                
             }
         },
         created(){
             this.$store.dispatch("init")
         },
         computed:{
-            ...mapState(['balance','superList5','timelist5','superList','timelist','timeamount'])
+            ...mapState(['balance','superList5','timelist5','superList','timelist','timeamount','timers1','timers'])
         }
     }
 </script>
@@ -147,8 +150,13 @@ import {mapState} from 'vuex'
         background-size: 100% 100%;
         // height: 325px;
         // opacity: 0.35;
-        }
-    
+    }
+    .bg4 {
+        background: url('../../assets/bg4.png') no-repeat;
+        background-size: 100% 100%;
+        // height: 325px;
+        // opacity: 0.35;
+    }
     
     .page_header {
         display: flex;

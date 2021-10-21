@@ -28,7 +28,11 @@ export default new Vuex.Store({
 		timelist5:[],
 		superList:[],
 		timelist:[],
-		timeamount:0
+		timeamount:0,
+		inttimers:'',
+		inttimers1:'',
+		timers:[0,0,0],
+		timers1:[0,0,0]
 	},
 	mutations: {
 		setloading(state, flag) {
@@ -94,6 +98,83 @@ export default new Vuex.Store({
 				}
 				// 显示当前连接的钱包帐户
 			}
+		},
+		gettime(state){
+			state.saleContract.methods.SUPER_LOTTERY_DURATION().call({ from: state.myaccount }).then(res=>{
+				console.log('SUPER_LOTTERY_DURATION:'+res)
+				state.saleContract.methods.getLastHeartBeat().call({ from: state.myaccount }).then(res1=>{
+					console.log('getLastHeartBeat:'+res1)
+					state.inttimers1=res-(new Date().getTime()/1000).toFixed()+res1*1
+					if(state.inttimers1<=0){
+						state.timers1=[0,0,0]
+						return;
+					}
+					state.timers1[0]=Math.floor(state.inttimers1/3600)
+					state.timers1[0]=Math.floor(state.inttimers1%3600/60)
+					state.timers1[0]=(state.inttimers1%60)
+					state.inttimers1=setInterval(()=>{
+						if(state.timers1[2]*1-1==0){
+							state.timers1[2]='60'
+							state.timers1[2]='59'
+						}else{
+							state.timers1.splice(2,1,state.timers1[2]*1<11?'0'+(state.timers1[2]*1-1):state.timers1[2]*1-1+'') 
+							return ;
+						}
+						if(state.timers1[1]==0){
+							state.timers1[1]='60'
+							state.timers1[1]='59'
+						}else{
+							state.timers1.splice(1,1,state.timers1[1]*1<11?'0'+(state.timers1[1]*1-1):state.timers1[1]*1-1+'')
+							return ;
+						}
+						if(state.timers1[0]==0){
+							state.timers1=[0,0,0]
+							clearInterval(state.inttimers1)
+						}else{
+							state.timers1.splice(0,1,state.timers1[0]*1<11?'0'+(state.timers1[0]*1-1):state.timers1[0]*1-1+'')
+							return ;
+						}
+						
+					},1000)
+				})
+			})
+			state.saleContract.methods.LAUNCH_TIME().call({ from: state.myaccount }).then(res=>{
+				console.log('LAUNCH_TIME:'+res)
+				state.saleContract.methods.LOTTERY_DURATION().call({ from: state.myaccount }).then(restime=>{
+					console.log('LOTTERY_DURATION:'+restime)
+					state.inttimers= Math.floor(restime-((new Date().getTime()/1000).toFixed()-res*1)%restime)
+					if(state.inttimers==0){
+						return;
+					}
+					state.timers[0]=Math.floor(state.inttimers/3600)
+					state.timers[1]=Math.floor(state.inttimers%3600/60)
+					state.timers[2]=(state.inttimers%60)
+					state.inttimers=setInterval(()=>{
+						if(state.timers[2]*1-1==0){
+							state.timers[2]='60'
+							state.timers[2]='59'
+						}else{
+							state.timers.splice(2,1,state.timers[2]*1<11?'0'+(state.timers[2]*1-1):state.timers[2]*1-1+'') 
+							return ;
+						}
+						if(state.timers[1]==0){
+							state.timers[1]='60'
+							state.timers[1]='59'
+						}else{
+							state.timers.splice(1,1,state.timers[1]*1<11?'0'+(state.timers[1]*1-1):state.timers[1]*1-1+'')
+							return ;
+						}
+						if(state.timers[0]==0){
+							state.timers=[0,0,0]
+							clearInterval(state.inttimers)
+						}else{
+							state.timers.splice(0,1,state.timers[0]*1<11?'0'+(state.timers[0]*1-1):state.timers[0]*1-1+'')
+							return ;
+						}
+						
+					},1000)
+				})
+			})
 		}
 	},
 	getters: {
@@ -154,7 +235,7 @@ export default new Vuex.Store({
 			.then((result)=> {
 				// state.current=result
 				state.current=2
-				console.log(result)
+				console.log("getLotteryRound:",result)
 				state.saleContract.methods //查看最新抢购地址
 				.getLastBuyers(state.current)
 				.call({ from: state.myaccount })
@@ -177,7 +258,7 @@ export default new Vuex.Store({
 				.call({ from: state.myaccount })
 				.then((result)=> {
 					// 当前地址USDT余额
-					console.log(2,result)
+					console.log("getTopBuyers:",result)
 					for(let i in result){
 						state.timelist5.push({})
 						state.saleContract.methods
@@ -191,7 +272,7 @@ export default new Vuex.Store({
 					console.error("checkApprove err, ", err);
 				});
 				state.saleContract.getPastEvents('LotteryRewards',(error, events)=>{
-					console.log(error,events)
+					console.log('getPastEvents:',events)
 					for(let i in events){
 						state.timelist.push({})
 						state.saleContract.methods
@@ -202,45 +283,19 @@ export default new Vuex.Store({
 					}
 				})
 				state.saleContract.getPastEvents('SuperLotteryRewards',(error, events)=>{
-					console.log(error,events)
+					console.log('getPastEvents:',events)
 					// state.superList=events
 					let arr=[45,25,15,10,5] 
 					for(let i in events){
 						state.superList.push({add:events[i],mount:arr[i]})
-						// state.superList.push({})
-						// state.saleContract.methods
-						// .buyin(state.current,result[i]).call({ from: state.myaccount }).then(res=>{
-						// 	state.superList[i]={add:result[i],mount:res}
-						// })
 					}
 				})
-				// state.saleContract.methods //查看大乐透中奖名单
-				// .LotteryRewards(result)
-				// .call({ from: state.myaccount })
-				// .then((result)=> {
-				// 	// 当前地址USDT余额
-				// 	console.log(3,result)
-				// })
-				// .catch((err) => {
-				// 	// If the request fails, the Promise will reject with an error.
-				// 	console.error("checkApprove err, ", err);
-				// });
-				// state.saleContract.methods //查看时时乐中奖名单
-				// .SuperLotteryRewards(result)
-				// .call({ from: state.myaccount })
-				// .then((result)=> {
-				// 	// 当前地址USDT余额
-				// 	console.log(4,result)
-				// })
-				// .catch((err) => {
-				// 	// If the request fails, the Promise will reject with an error.
-				// 	console.error("checkApprove err, ", err);
-				// });
 			})
 			.catch((err) => {
 			  // If the request fails, the Promise will reject with an error.
 			  console.error("checkApprove err, ", err);
 			});
+			commit('gettime')
 		}
 	},
 	modules: {
